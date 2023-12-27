@@ -1,0 +1,9 @@
+pywhatkit
+pyjokes
+wikipedia
+parsedatetime
+requests
+bs4
+speechrecognition
+pyttsx3
+pyaudio
