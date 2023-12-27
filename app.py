@@ -3,46 +3,43 @@ import pyttsx3
 import pywhatkit
 import pyjokes
 import wikipedia
-# import datetime
-import requests 
+import requests
 from bs4 import BeautifulSoup
 from datetime import datetime as dt
 from datetime import timedelta
 import parsedatetime
 import time
 
-
-def speak(text,rate=150):
+def speak(text, rate=150):
     engine = pyttsx3.init()
-    engine.setProperty('rate',rate)
+    engine.setProperty('rate', rate)
     engine.say(text)
     engine.runAndWait()
 
-def get_weather_():
-        try:
-            search_query=command.replace('friend','')
-            # search_query = command()
-            google_search_url = f"https://www.google.com/search?q={search_query}"
+def get_weather_(command):
+    try:
+        search_query = command.replace('friend', '')
+        google_search_url = f"https://www.google.com/search?q={search_query}"
 
-                # Send a GET request to the Google search page
-            response = requests.get(google_search_url)
-            response.raise_for_status()
+        # Send a GET request to the Google search page
+        response = requests.get(google_search_url)
 
-                # Parse the HTML content of the page
+        # Check for request success
+        if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-
-                # Find the weather information in the search results
             weather_info = soup.find("div", {"class": "BNeawe iBp4i AP7Wnd"})
-                
             return weather_info.text if weather_info else None
-                
-        except requests.exceptions.RequestException as e:
-            print(f"Error: {e}")
+        else:
+            print(f"Error: {response.status_code}")
             return None
+
+    except requests.RequestException as e:
+        print(f"Error: {e}")
+        return None
 
 def get_command():
     recognizer = sr.Recognizer()
-    
+
     with sr.Microphone() as source:
         print("Listening...")
         recognizer.adjust_for_ambient_noise(source)
@@ -51,8 +48,8 @@ def get_command():
     try:
         print("Recognizing...")
         command = recognizer.recognize_google(audio).lower()
-        print("You said:", command)
-        return command  
+        print(f"You said: {command}")
+        return command
     except sr.UnknownValueError:
         print("Sorry, I couldn't get you. Can you please repeat?")
         return get_command()
@@ -217,13 +214,19 @@ def execute_command(command):
         #     else:
         #         speak("Unable to fetch weather data.")
 
+    
+
+    elif "friend" in command and "how is the weather" in command:
+        weather_info = get_weather_(command)
+        speak(weather_info)
     else:
         print(command)
         print("Sorry, I couldn't get the command.")
+    # ... (other commands)
 
 if __name__ == "__main__":
-    speak("Hello! I am friend, your personal assistant . How can I assist you today?")
-    
+    speak("Hello! I am friend, your personal assistant. How can I assist you today?")
+
     while True:
         command = get_command()
 
@@ -233,38 +236,5 @@ if __name__ == "__main__":
 
         if command:
             execute_command(command)
-        if command and "friend how is the weather" in command:
-            weather_info = get_weather_()
-            speak(weather_info)
         if command and "friend where is dr salahuddin" in command or "friend where is dr salal uddin" in command or "friend where is dr salar uddin" in command:
-            speak("sir went to attend a meeting. Please come back later.")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            speak("Sir went to attend a meeting. Please come back later.")
